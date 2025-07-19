@@ -1,9 +1,57 @@
+import random
+
 BOARD_SIZE = 3
 EMPTY_MARKER = "[]"
 P1_MARKER = "X"
 P2_MARKER = "O"
 OCUPIED = (P1_MARKER, P2_MARKER)
 
+
+class Player:
+    marker: str
+    name: str
+
+    def __init__(self, name: str, marker: str) -> None:
+        if marker == EMPTY_MARKER:
+            raise ValueError("This is reserved")
+        self.marker = marker
+        self.name = name
+
+    def hit(self) -> tuple[int, int]:
+        raise NotImplementedError()
+
+
+class BotPlayer(Player):
+    def __init__(self, name: str, marker: str) -> None:
+        super().__init__(name, marker)
+
+    def hit(self) -> tuple[int, int]:
+        return random.randint(0, BOARD_SIZE -1), random.randint(0, BOARD_SIZE - 1)
+
+
+class HumanPlayer(Player):
+    def __init__(self, marker: str) -> None:
+        name = input("Enter your name: ")
+        super().__init__(name, marker)
+
+    def _get_coordinate_usr_input(self, input_name: str) -> int:
+        while True:
+            result = input(f"{self.name}, please enter {input_name} coordinate: ")
+            try:
+                result = int(result)
+            except:
+                print(f"{input_name} must be an int, received {type(result)}")
+                continue
+            if result > BOARD_SIZE:
+                print(f"{input_name} is too big")
+            elif result < 0:
+                print(f"{input_name} can't be a negative number")
+            else:
+                break
+        return result
+
+    def hit(self) -> tuple[int, int]:
+        return self._get_coordinate_usr_input("y"), self._get_coordinate_usr_input("x")
 
 class Board:
     def __init__(self) -> None:
@@ -14,7 +62,7 @@ class Board:
         returns True if marked successfully, and False if not
         """
         if place[0] > BOARD_SIZE or place[1] > BOARD_SIZE:
-            raise ValueError("there is no such place")
+            return False
         target_place = self.grid[place[0]][place[1]]
         if target_place in OCUPIED:
             return False
@@ -72,3 +120,40 @@ class Board:
         if result := self._check_lines([sequence]):
             return result
         return None
+
+    def print_grid(self):
+        top = "---" * BOARD_SIZE
+        print(top)
+        for line in self.grid:
+            print(line)
+
+class Game():
+    board: Board
+    players: list[Player]
+
+    def __init__(self) -> None:
+        self.board = Board()
+        p1 = HumanPlayer(marker=P1_MARKER)
+        p2 = BotPlayer("bot", P2_MARKER)
+        self.players = [p1, p2]
+
+    def start_game_loop(self):
+        while True:
+            self.board.print_grid()
+            for player in self.players:
+                while True:
+                    place = player.hit()
+                    if not self.board.mark(player.marker, place):
+                        print("choose another spot")
+                        continue
+                    else:
+                        break
+                self.board.print_grid()
+                if result := self.board.is_game_end():
+                    print(f"{result} wins!")
+                    return
+
+
+if __name__ == "__main__":
+    game = Game()
+    game.start_game_loop()
