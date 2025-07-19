@@ -8,7 +8,12 @@ class TestTextNode(unittest.TestCase):
         board = Board()
         board.mark(marker=P1_MARKER, place=(1, 1))
         self.assertEqual(
-            board.grid, [["[]", "[]", "[]"], ["[]", "X", "[]"], ["[]", "[]", "[]"]]
+            board.grid,
+            [
+                [EMPTY_MARKER, EMPTY_MARKER, EMPTY_MARKER],
+                [EMPTY_MARKER, P1_MARKER, EMPTY_MARKER],
+                [EMPTY_MARKER, EMPTY_MARKER, EMPTY_MARKER],
+            ],
         )
 
         board = Board()
@@ -16,7 +21,12 @@ class TestTextNode(unittest.TestCase):
         board.mark(marker=P2_MARKER, place=(1, 2))
         board.mark(marker=P2_MARKER, place=(2, 0))
         self.assertEqual(
-            board.grid, [["[]", "[]", "[]"], ["[]", "O", "O"], ["O", "[]", "[]"]]
+            board.grid,
+            [
+                [EMPTY_MARKER, EMPTY_MARKER, EMPTY_MARKER],
+                [EMPTY_MARKER, P2_MARKER, P2_MARKER],
+                [P2_MARKER, EMPTY_MARKER, EMPTY_MARKER],
+            ],
         )
 
     def test_is_game_end(self):

@@ -1,7 +1,7 @@
 import random
 
 BOARD_SIZE = 3
-EMPTY_MARKER = "[]"
+EMPTY_MARKER = " "
 P1_MARKER = "X"
 P2_MARKER = "O"
 OCUPIED = (P1_MARKER, P2_MARKER)
@@ -39,7 +39,7 @@ class HumanPlayer(Player):
             result = input(f"{self.name}, please enter {input_name} coordinate: ")
             try:
                 result = int(result)
-            except:
+            except ValueError:
                 print(f"{input_name} must be an int, received {type(result)}")
                 continue
             if result > BOARD_SIZE:
@@ -121,11 +121,19 @@ class Board:
             return result
         return None
 
-    def print_grid(self):
-        top = "---" * BOARD_SIZE
-        print(top)
+    def draw_grid(self) -> str:
+        result = "---" * BOARD_SIZE
+        result += "\n"
         for line in self.grid:
-            print(line)
+            result += " | ".join(line) + "\n"
+            result += "---" * BOARD_SIZE
+            result += "\n"
+        return result
+
+def update_screen(screen: str):
+    print("\033[2J\033[H", end="")
+    print(screen)
+
 
 class Game():
     board: Board
@@ -139,7 +147,7 @@ class Game():
 
     def start_game_loop(self):
         while True:
-            self.board.print_grid()
+            update_screen(self.board.draw_grid())
             for player in self.players:
                 while True:
                     place = player.hit()
@@ -148,7 +156,7 @@ class Game():
                         continue
                     else:
                         break
-                self.board.print_grid()
+                update_screen(self.board.draw_grid())
                 if result := self.board.is_game_end():
                     print(f"{result} wins!")
                     return
